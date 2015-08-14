@@ -34,5 +34,6 @@ Ex.:
 Will look for *a* and *b* in *x08afe4aed7* environment.
 
 Also possible to access *a* and *b* within the function:
+    
     get("a", env=parent.frame())
 
