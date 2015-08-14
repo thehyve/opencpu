@@ -1,4 +1,4 @@
-execute_function <- function(object, requri, objectname="FUN"){
+execute_function <- function(object, requri, objectname="FUN", execenv=NULL){
   
   #test for executability
   if(!is.function(object)){
@@ -29,7 +29,14 @@ execute_function <- function(object, requri, objectname="FUN"){
 
   #construct call
   mycall <- as.call(c(list(as.name(objectname)), argn));
-  fnargs <- c(fnargs, structure(list(object), names=objectname));		
+  
+  
+  if(!is.null(execenv)){
+    fnargs <- c(fnargs, as.list(execenv), structure(list(object), names=objectname));
+  }else{
+    fnargs <- c(fnargs, structure(list(object), names=objectname));
+  }
+
   
   #perform evaluation
   session$eval(mycall, fnargs, storeval=TRUE, format=requri[1])

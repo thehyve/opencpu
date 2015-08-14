@@ -68,7 +68,8 @@ session <- local({
     }
 
     #initiate environment
-    sessionenv <- new.env(parent=args);
+    #sessionenv <- new.env(parent=args);
+    sessionenv <- args;
 
     #need to do this before evaluate, in case evaluate uses set.seed
     hash <- generate();

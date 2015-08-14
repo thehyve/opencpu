@@ -4,13 +4,65 @@ httpget_package_r <- function(pkgpath, requri){
   reqpackage <- basename(pkgpath);
   reqlib <- dirname(pkgpath);
   
+  
+  
   #Package has to be loaded from reqlib, but dependencies might be loaded from global libs.
   inlib(reqlib,{
     loadPackageFrom(reqpackage, reqlib);
     
     #reqhead is function/object name
-    reqobject <- head(requri, 1);
-    reqformat <- requri[2];    
+    if(req$method() == "POST"){
+      reqobject <- head(requri, 1);
+      #Request enviroment token
+      reqenv <- requri[2]; 
+      reqformat <- requri[3];
+      
+      if(is.na(reqenv))
+        res$notfound(message=paste("Specify the enviroment: /[token] or /new"));
+      
+      execenv <- NULL;
+      
+      #Get the enviroment in which to run function
+      if(reqenv != "new"){
+        #Location of the tmp folder where sessions are stored
+        tmpsessiondir <- file.path(gettmpdir(), "tmp_library");
+        sessionpath <- file.path(tmpsessiondir, reqenv); 
+
+        #make sure it exists
+        res$checkfile(sessionpath);
+        
+        #enter the session path
+        setwd(sessionpath);
+        
+        #try to use old libraries
+        libfile <- file.path(sessionpath, ".Rlibs");
+        if(file.exists(libfile)){
+          customlib <- readRDS(libfile);
+        } else {
+          customlib <- NULL;
+        }   
+        
+        #reload packages
+        inlib(customlib, {
+          infofile <- file.path(sessionpath, ".RInfo");
+          if(file.exists(infofile)){
+            loadsessioninfo(infofile);
+          }   
+        });
+        
+        #load session
+        execenv <- new.env();
+        sessionfile <- file.path(sessionpath, ".RData")
+        if(file.exists(sessionfile)){
+          load(sessionfile, envir=execenv);
+        }  
+
+      }
+    }else{
+      reqobject <- head(requri, 1);
+      reqformat <- requri[2];  
+    }
+  
     
     if(!length(reqobject)){
       res$checkmethod();
@@ -37,7 +89,7 @@ httpget_package_r <- function(pkgpath, requri){
     #return object
     switch(req$method(),
       "GET" = httpget_object(myobject, reqformat, reqobject),
-      "POST" = execute_function(myobject, tail(requri, -1), reqobject),
+      "POST" = execute_function(myobject, tail(requri, -1), reqobject, execenv),
       stop("invalid method")
     );
   });

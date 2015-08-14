@@ -1,4 +1,5 @@
 load_session_namespaces <- function(expr){
+  print(expr)
   all_sessions <- unique(grep(session_regex(), findnamespaces(expr), value = TRUE))
   lapply(all_sessions, function(key){
     filepath <- file.path(session$sessiondir(key), ".RData");
