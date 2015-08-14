@@ -21,18 +21,18 @@ Bleeding edge from Github:
 API Changes
 ===========
 
-POST .../ocpu/library/[packageName]/R/[functionName]/[sessionKey]
+    POST .../ocpu/library/[packageName]/R/[functionName]/[sessionKey]
 Will execute function within environment associates with session key, with POST body parameters.
 
-POST .../ocpu/library/[packageName]/R/[functionName]/new
+    POST .../ocpu/library/[packageName]/R/[functionName]/new
 Will execute function within new environment, containing only POST body parameters.
 
 Ex.:
 ----
 
-POST .../ocpu/library/base/R/+/x08afe4aed7 -d "e1=a&e2=b"
-Will look for a and b in x08afe4aed7 environment.
+    POST .../ocpu/library/base/R/+/x08afe4aed7 -d "e1=a&e2=b"
+Will look for *a* and *b* in *x08afe4aed7* environment.
 
-Also possible to access a and b within the function, with:
-get("a", env=parent.frame())
+Also possible to access *a* and *b* within the function:
+    get("a", env=parent.frame())
 
